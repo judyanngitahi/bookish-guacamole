@@ -1,3 +1,5 @@
+#loading all the libararies needed for the analysis
+
 library(ggplot2)
 library(dplyr)
 library(GGally)
@@ -5,6 +7,7 @@ library(rpart)
 library(rpart.plot)
 library(randomForest)
 
+#read in the datasets 
 test <- read.csv('/Users/judygitahi/Downloads/test.csv',stringsAsFactors = FALSE)
 train <- read.csv('/Users/judygitahi/Downloads/train.csv', stringsAsFactors = FALSE)
 
@@ -16,10 +19,10 @@ str(full)
 colSums(is.na(full))
 colSums(full=="")
 
-# Let's change the empty strings in Embarked to the first choice "C"
+#change the empty strings in Embarked to the first choice "C"
 full$Embarked[full$Embarked==""]="C"
 
-# Let's see how many features we can move to factors
+#change soem factors to features
 apply(full,2, function(x) length(unique(x)))
 
 # Let's move the features Survived, Pclass, Sex, Embarked to be factors
