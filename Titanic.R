@@ -1,5 +1,8 @@
-#loading all the libararies needed for the analysis
+#we have data on some passengers and we know some of who died
+#the goal is to predict the survival for the passengers we do not have survival data of
+# and explore the relationship between various factors and the survival outcome
 
+#loading all the libraries needed for the analysis
 library(ggplot2)
 library(dplyr)
 library(GGally)
@@ -7,36 +10,42 @@ library(rpart)
 library(rpart.plot)
 library(randomForest)
 
-#read in the datasets 
+#read in the datasets and make a new data set based on the train and test data sets
 test <- read.csv('/Users/judygitahi/Downloads/test.csv',stringsAsFactors = FALSE)
-train <- read.csv('/Users/judygitahi/Downloads/train.csv', stringsAsFactors = FALSE)
+#this is the data for which we are predicting the survival 
 
+train <- read.csv('/Users/judygitahi/Downloads/train.csv', stringsAsFactors = FALSE)
+#has all info including whether the passenger died or not
+
+#make a data set using the test and train data sets
 full <- bind_rows(train,test)
 LT=dim(train)[1]
+
+#check the internal structure of the resulting data set
 str(full)
 
-# Missing values
+# Missing values - I count the number of NAs per column, and number of empty strings
 colSums(is.na(full))
 colSums(full=="")
 
 #change the empty strings in Embarked to the first choice "C"
 full$Embarked[full$Embarked==""]="C"
 
-#change soem factors to features
+#checking how many different types of vectors there are to determine which we can move from features to factors
 apply(full,2, function(x) length(unique(x)))
 
-# Let's move the features Survived, Pclass, Sex, Embarked to be factors
+# encoding some of the columns into factors (categorical variables)
 cols<-c("Survived","Pclass","Sex","Embarked")
 for (i in cols){
   full[,i] <- as.factor(full[,i])
 }
 
-# Now lets look on the structure of the full data set
 str(full)
-# Analysis
+
+#what is the relationship between sex and survival?
 ggplot(data=full[1:LT,],aes(x=Sex,fill=Survived))+geom_bar()
 
-# Survival as a function of Embarked:
+#then look at survival as a function of those who embarked and how that correlates to where you embarked
 ggplot(data = full[1:LT,],aes(x=Embarked,fill=Survived))+geom_bar(position="fill")+ylab("Frequency")
 
 t<-table(full[1:LT,]$Embarked,full[1:LT,]$Survived)
@@ -46,19 +55,19 @@ for (i in 1:dim(t)[1]){
 t
 #It looks that you have a better chance to survive if you Embarked in 'C' (55% compared to 33% and 38%).
 
-# Survival as a function of Pclass:
+# Then look at survival as a function of Pclass:
 ggplot(data = full[1:LT,],aes(x=Pclass,fill=Survived))+geom_bar(position="fill")+ylab("Frequency")
-# It looks like you have a better chance to survive if you in lower ticket class.
-# Now, let's devide the graph of Embarked by Pclass:
+# Interestingly, it looks like you have a better chance to survive if you in lower ticket class.
+
+# then do a more granular analysis and divide the graph by embarked and class
+#the correlation between embarked and survived is no longer evident
 ggplot(data = full[1:LT,],aes(x=Embarked,fill=Survived))+geom_bar(position="fill")+facet_wrap(~Pclass)
 
-# Now it's not so clear that there is a correlation between Embarked and Survival. 
-
-# Survivial as a function of SibSp and Parch
+# So we look at survival as a function of SibSp and Parch
 ggplot(data = full[1:LT,],aes(x=SibSp,fill=Survived))+geom_bar()
 ggplot(data = full[1:LT,],aes(x=Parch,fill=Survived))+geom_bar()
 
-# The dymanics of SibSp and Parch are very close one each other.
+# The dymanics of SibSp and Parch are very close one each other.-- but dont really give much information as a whole
 # Let's try to look at another parameter: family size.
 
 full$FamilySize <- full$SibSp + full$Parch +1;
