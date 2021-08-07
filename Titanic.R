@@ -10,7 +10,7 @@ library(rpart)
 library(rpart.plot)
 library(randomForest)
 
-#read in the datasets and make a new data set based on the train and test data sets
+#read in the data sets and make a new data set based on the train and test data sets
 test <- read.csv('/Users/judygitahi/Downloads/test.csv',stringsAsFactors = FALSE)
 #this is the data for which we are predicting the survival 
 
